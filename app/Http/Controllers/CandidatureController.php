@@ -8,18 +8,36 @@ use App\Models\DocumentCandidature;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
+use App\Mail\CandidatureRejetee;
+use Illuminate\Support\Facades\Mail;
 
 class CandidatureController extends Controller
 {
     // Affiche le formulaire public de candidature
     public function create()
-    {
-        return view('candidatures.create');
+{
+    $dateLimite = Carbon::create(2026, 12, 31, 23, 59, 59, 'Africa/Abidjan');
+
+    // Dès qu'un utilisateur essaie d'accéder au formulaire (/candidater)
+    if (Carbon::now('Africa/Abidjan')->greaterThan($dateLimite)) {
+        // On l'envoie directement sur la page "fermé"
+        return view('candidatures.ferme', compact('dateLimite'));
     }
+
+    return view('candidatures.create', compact('dateLimite'));
+}
 
     // Traite et enregistre la candidature et ses documents
     public function store(Request $request)
     {
+        $dateLimite = Carbon::create(2026, 12, 31, 23, 59, 59);
+
+        // SECURITÉ : Empêcher l'enregistrement si la date limite est dépassée
+        if (Carbon::now()->greaterThan($dateLimite)) {
+            return view('candidatures.ferme', compact('dateLimite'));
+        }
+
         // 1. Validation des données du formulaire et des fichiers joints
         $request->validate([
             'prenom' => 'required|string|max:100',
@@ -28,6 +46,7 @@ class CandidatureController extends Controller
             'email' => 'nullable|email|max:255',
             'ville' => 'required|string|max:100',
             'numero_permis' => 'required|string|max:50',
+            'annees_remis' => 'sometimes|integer', // correction éventuelle
             'annees_permis' => 'required|integer|min:1',
             'numero_piece_identite' => 'required|string|max:50',
             // Validation des fichiers (PDF ou Images acceptés, max 2Mo par fichier)
@@ -85,4 +104,5 @@ class CandidatureController extends Controller
             return back()->withInput()->with('error', 'Une erreur est survenue lors de l\'envoi de votre dossier : '.$e->getMessage());
         }
     }
+    
 }

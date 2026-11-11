@@ -473,7 +473,7 @@
                                         <span class="avatar" aria-hidden="true">{{ mb_strtoupper(mb_substr($candidature->chauffeur->prenom, 0, 1).mb_substr($candidature->chauffeur->nom, 0, 1)) }}</span>
                                         <span>
                                             <span class="candidate-name">{{ $candidature->chauffeur->prenom }} {{ $candidature->chauffeur->nom }}</span>
-                                            <span class="candidate-date">Dossier #{{ $candidature->id }}</span>
+                                            <span class="candidate-date">Dossier {{ $candidature->id }}</span>
                                         </span>
                                     </div>
                                 </td>

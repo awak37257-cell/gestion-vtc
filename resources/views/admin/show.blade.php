@@ -21,6 +21,7 @@
         'carte_vtc_verso' => 'Carte VTC · verso',
         'piece_identite' => 'Pièce d’identité',
     ];
+    $dernierEntretien = $candidature->entretiens()->latest('id')->first();
 @endphp
 <!DOCTYPE html>
 <html lang="fr">
@@ -395,7 +396,7 @@
                     <div class="profile-main">
                         <span class="avatar" aria-hidden="true">{{ mb_strtoupper(mb_substr($candidature->chauffeur->prenom, 0, 1).mb_substr($candidature->chauffeur->nom, 0, 1)) }}</span>
                         <div>
-                            <p class="eyebrow">Dossier Candidat </p>
+                            <p class="eyebrow">Dossier Candidat</p>
                             <h1 id="candidate-name">{{ $candidature->chauffeur->prenom }} {{ $candidature->chauffeur->nom }}</h1>
                             <div class="profile-meta">
                                 <span><i class="fa-solid fa-location-dot" aria-hidden="true"></i> {{ $candidature->chauffeur->ville }}</span>
@@ -494,14 +495,109 @@
                                     </div>
                                 </div>
                                 <div class="panel-body">
-                                    <div class="flash flash-success" role="status">
+                                    <div class="flash flash-success" role="status" style="margin-bottom: 0;">
                                         <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
                                         Cette candidature a été acceptée. La planification d’un entretien n’est plus nécessaire.
                                     </div>
                                 </div>
                             </section>
+@elseif($dernierEntretien)
+    <!-- RÉCAPITULATIF DE L'ENTRETIEN AVEC OPTIONS DE MODIFICATION ET D'ANNULATION -->
+    <section class="panel" aria-labelledby="interview-summary-title">
+        <div class="panel-heading">
+            <div class="panel-title-group">
+                <span class="panel-icon"><i class="fa-regular fa-calendar-check" aria-hidden="true"></i></span>
+                <div>
+                    <h2 id="interview-summary-title">Entretien programmé</h2>
+                    <p>Détails du rendez-vous fixé</p>
+                </div>
+            </div>
+        </div>
+        <div class="panel-body" id="view-mode">
+            <dl class="info-list">
+                <div class="info-row">
+                    <dt>Date et heure</dt>
+                    <dd>{{ date('d/m/Y à H:i', strtotime($dernierEntretien->date_prevue)) }}</dd>
+                </div>
+                <div class="info-row">
+                    <dt>Lieu / Canal</dt>
+                    <dd>{{ $dernierEntretien->lieu_ou_type ?: 'Non renseigné' }}</dd>
+                </div>
+                <div class="info-row" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <dt>Notes internes</dt>
+                    <dd style="text-align: left; font-weight: 500; color: var(--muted);">
+                        {{ $dernierEntretien->notes ?: 'Aucune note enregistrée.' }}
+                    </dd>
+                </div>
+            </dl>
+
+            <div class="divider"></div>
+
+            <!-- BOUTONS MODIFIER ET ANNULER CÔTE À CÔTE -->
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <button type="button" class="button button-accent" onclick="toggleEditMode()" style="flex: 1;">
+                    <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> Modifier
+                </button>
+
+                <form action="{{ route('admin.candidatures.annulerEntretien', $candidature->id) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cet entretien ? Le dossier repassera en cours d\'examen.');" style="flex: 1;">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="button" style="background: linear-gradient(135deg, var(--rose), #be123c); color: #fff; width: 100%;">
+                        <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Annuler
+                    </button>
+                </form>
+            </div>
+
+            @php
+                $messageEntretien = "Bonjour {$candidature->chauffeur->prenom}, votre dossier VTC a retenu notre attention. Nous vous invitons à un entretien le ".date('d/m/Y à H:i', strtotime($dernierEntretien->date_prevue))." via {$dernierEntretien->lieu_ou_type}. Merci de confirmer votre présence.";
+            @endphp
+            <a class="button button-whatsapp" href="https://wa.me/{{ $telephone }}?text={{ urlencode($messageEntretien) }}" target="_blank" rel="noopener noreferrer">
+                <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Ouvrir WhatsApp avec l'invitation
+            </a>
+        </div>
+
+        <!-- FORMULAIRE DE MODIFICATION (Caché par défaut) -->
+        <div class="panel-body" id="edit-mode" style="display: none;">
+            <form action="{{ route('admin.candidatures.modifierEntretien', $candidature->id) }}" method="POST">
+                @csrf
+                <div class="form-field">
+                    <label for="date_prevue_mod">Date et heure du rendez-vous</label>
+                    <input class="control" id="date_prevue_mod" type="datetime-local" name="date_prevue" value="{{ date('Y-m-d\TH:i', strtotime($dernierEntretien->date_prevue)) }}" required>
+                </div>
+                <div class="form-field">
+                    <label for="lieu_ou_type_mod">Lieu ou canal</label>
+                    <input class="control" id="lieu_ou_type_mod" type="text" name="lieu_ou_type" value="{{ $dernierEntretien->lieu_ou_type }}" placeholder="Ex. Bureau ou visio" required>
+                </div>
+                <div class="form-field">
+                    <label for="notes_mod">Notes internes</label>
+                    <textarea class="control" id="notes_mod" name="notes" rows="2" placeholder="Commentaires...">{{ $dernierEntretien->notes }}</textarea>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="button button-accent" type="submit" style="flex: 1;">
+                        <i class="fa-solid fa-check" aria-hidden="true"></i> Enregistrer
+                    </button>
+                    <button class="button" type="button" onclick="toggleEditMode()" style="flex: 1; background: var(--line); color: var(--ink);">
+                        Retour
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+    <script>
+        function toggleEditMode() {
+            const viewMode = document.getElementById('view-mode');
+            const editMode = document.getElementById('edit-mode');
+            if (viewMode.style.display === 'none') {
+                viewMode.style.display = 'block';
+                editMode.style.display = 'none';
+            } else {
+                viewMode.style.display = 'none';
+                editMode.style.display = 'block';
+            }
+        }
+    </script>
                         @else
-                            <!-- Planification entretien -->
+                            <!-- FORMULAIRE DE PLANIFICATION DE L'ENTRETIEN -->
                             <section class="panel" aria-labelledby="interview-title">
                                 <div class="panel-heading">
                                     <div class="panel-title-group">
@@ -517,25 +613,22 @@
                                         @csrf
                                         <div class="form-field">
                                             <label for="date_prevue">Date et heure du rendez-vous</label>
-                                            <input class="control" id="date_prevue" type="datetime-local" name="date_prevue" value="{{ old('date_prevue', $dernierEntretien ? date('Y-m-d\TH:i', strtotime($dernierEntretien->date_prevue)) : '') }}" required>
+                                            <input class="control" id="date_prevue" type="datetime-local" name="date_prevue" value="{{ old('date_prevue') }}" required>
                                             @error('date_prevue')<span class="form-error">{{ $message }}</span>@enderror
                                         </div>
                                         <div class="form-field">
                                             <label for="lieu_ou_type">Lieu ou canal</label>
-                                            <input class="control" id="lieu_ou_type" type="text" name="lieu_ou_type" value="{{ old('lieu_ou_type', $dernierEntretien->lieu_ou_type ?? 'Messagerie instantanée') }}" placeholder="Ex. Bureau ou visio">
+                                            <input class="control" id="lieu_ou_type" type="text" name="lieu_ou_type" value="{{ old('lieu_ou_type', 'Messagerie instantanée') }}" placeholder="Ex. Bureau ou visio">
                                         </div>
                                         <div class="form-field">
                                             <label for="notes">Notes internes</label>
-                                            <textarea class="control" id="notes" name="notes" rows="2" placeholder="Commentaires...">{{ old('notes', $dernierEntretien->notes ?? '') }}</textarea>
+                                            <textarea class="control" id="notes" name="notes" rows="2" placeholder="Commentaires...">{{ old('notes') }}</textarea>
                                         </div>
                                         <button class="button button-accent" type="submit">
                                             <i class="fa-solid fa-calendar-plus" aria-hidden="true"></i> Enregistrer l'entretien
                                         </button>
                                     </form>
 
-                                    @php
-                                        $dernierEntretien = $candidature->entretiens()->latest('id')->first();
-                                    @endphp
                                     @if($dernierEntretien)
                                         @php
                                             $messageEntretien = "Bonjour {$candidature->chauffeur->prenom}, votre dossier VTC a retenu notre attention. Nous vous invitons à un entretien le ".date('d/m/Y à H:i', strtotime($dernierEntretien->date_prevue))." via {$dernierEntretien->lieu_ou_type}. Merci de confirmer votre présence.";

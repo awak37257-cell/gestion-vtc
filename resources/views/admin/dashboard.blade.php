@@ -324,11 +324,11 @@
 
         @php
             $stats = [
-                ['label' => 'Total des dossiers', 'status' => null, 'icon' => 'fa-folder-open', 'class' => ''],
                 ['label' => 'En attente', 'status' => 'en_attente', 'icon' => 'fa-hourglass-half', 'class' => 'pending'],
                 ['label' => 'En cours d’examen', 'status' => 'en_cours_examen', 'icon' => 'fa-magnifying-glass', 'class' => 'review'],
                 ['label' => 'Entretiens programmés', 'status' => 'entretien_programme', 'icon' => 'fa-calendar-check', 'class' => 'interview'],
                 ['label' => 'Acceptés', 'status' => 'accepte', 'icon' => 'fa-circle-check', 'class' => 'accepted'],
+                ['label' => 'Rejetés', 'status' => 'rejete', 'icon' => 'fa-circle-xmark', 'class' => 'rejected'],
             ];
             $statusLabels = [
                 'en_attente' => 'En attente',

@@ -7,13 +7,20 @@
         <a class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
             <i class="fa-solid fa-chart-line" aria-hidden="true"></i><span>Tableau de bord</span>
         </a>
-        <a class="sidebar-link {{ request()->routeIs('admin.candidatures.*') ? 'active' : '' }}" href="{{ route('admin.candidatures.index') }}">
+        
+        <a class="sidebar-link {{ request()->routeIs('admin.candidatures.index') || request()->routeIs('admin.candidatures.show') ? 'active' : '' }}" href="{{ route('admin.candidatures.index') }}">
             <i class="fa-solid fa-briefcase" aria-hidden="true"></i><span>Candidatures</span>
             @php $pendingCount = \App\Models\Candidature::whereIn('statut', ['en_attente', 'en_cours_examen'])->count(); @endphp
             @if($pendingCount > 0)
                 <span class="sidebar-badge">{{ $pendingCount }}</span>
             @endif
         </a>
+
+        <!-- NOUVEAU LIEN : BILAN DU JOUR & NOTIFICATIONS -->
+        <a class="sidebar-link {{ request()->routeIs('admin.entretiens.recapitulatif') ? 'active' : '' }}" href="{{ route('admin.entretiens.recapitulatif') }}">
+            <i class="fa-solid fa-clipboard-check" aria-hidden="true"></i><span>Bilan du jour</span>
+        </a>
+
         <a class="sidebar-link" href="{{ route('candidature.create') }}" target="_blank" rel="noopener">
             <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i><span>Formulaire public</span>
         </a>
