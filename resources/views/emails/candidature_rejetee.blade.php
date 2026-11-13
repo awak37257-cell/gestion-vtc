@@ -14,7 +14,10 @@
     <div class="email-card">
         <h2>Bonjour {{ $candidature->chauffeur->prenom }},</h2>
         <p>Nous vous remercions pour l'intérêt que vous avez porté à <strong>TIHE'S Group</strong> et pour le temps consacré à votre dossier de candidature.</p>
-        <p>Après un examen attentif de votre profil et de votre entretien, nous au regret de vous informer que nous ne pourrons pas donner suite à votre candidature pour cette session.</p>
+       <p>Après un examen attentif de votre profil et de votre entretien, nous sommes au regret de vous informer que nous ne pourrons pas donner suite à votre candidature pour cette session.</p>
+@if($candidature->motif_rejet)
+    <p><strong>Motif :</strong> {{ $candidature->motif_rejet }}</p>
+@endif
         <p>Nous vous souhaitons beaucoup de succès dans vos futurs projets professionnels.</p>
         <div class="footer">
             Cordialement,<br>

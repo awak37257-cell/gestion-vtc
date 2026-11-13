@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\Candidature;
 use App\Models\Chauffeur;
 use App\Models\Entretien;
+use App\Models\DocumentCandidature;
+use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
@@ -26,11 +28,23 @@ class AdminCandidatureIndexTest extends TestCase
         $response->assertSee('src="'.asset('images/logo.png').'"', false);
         $response->assertSee('Tableau de bord');
     }
+    protected function setUp(): void
+{
+    parent::setUp();
+
+    $this->actingAs(User::factory()->admin()->create());
+}
 
     public function test_candidates_with_a_completed_interview_can_be_accepted_or_rejected_from_the_list(): void
     {
         $this->travelTo('2026-11-15 10:31:00');
         $candidature = $this->createCandidature('entretien_programme');
+        DocumentCandidature::create([
+    'candidature_id' => $candidature->id,
+    'type_document' => 'permis_recto',
+    'chemin_fichier' => 'documents_candidats/permis.jpg',
+    'est_valide' => true,
+]);
         Entretien::create([
             'candidature_id' => $candidature->id,
             'date_prevue' => '2026-11-15 10:30:00',

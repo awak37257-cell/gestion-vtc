@@ -22,6 +22,7 @@
         'piece_identite' => 'Pièce d’identité',
     ];
     $dernierEntretien = $candidature->entretiens()->latest('id')->first();
+    $nbRejetes = $candidature->documents->filter(fn ($document) => $document->est_valide === false)->count();
 @endphp
 <!DOCTYPE html>
 <html lang="fr">
@@ -273,6 +274,32 @@
             transition: color .2s ease;
         }
         .document-link:hover { color: var(--ink); text-decoration: underline; }
+        .document-review { padding: 10px 12px 12px; display: grid; gap: 8px; border-top: 1px solid rgba(0,0,0,.06); }
+        .doc-badge { display: inline-block; width: fit-content; padding: 3px 10px; border-radius: 999px; font-size: .72rem; font-weight: 700; background: #f1f5f9; color: #475569; }
+        .doc-badge-ok { background: #d1fae5; color: #047857; }
+        .doc-badge-ko { background: #ffe4e6; color: #be123c; }
+        .document-review form { display: grid; gap: 6px; }
+        .document-review input[type=text] { width: 100%; padding: 7px 9px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: .8rem; }
+        .document-review .review-actions { display: flex; gap: 6px; }
+        .document-review button { flex: 1; padding: 7px 8px; border: 0; border-radius: 8px; font-size: .78rem; font-weight: 700; cursor: pointer; color: #fff; }
+        .document-review .btn-ok { background: #059669; }
+        .document-review .btn-ko { background: #e11d48; }
+        .doc-badge-new { background: #e0f2fe; color: #0369a1; }
+.correction-bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+    margin: 20px 22px 0; padding: 14px 16px;
+    border: 1px solid #fecdd3; border-radius: 12px;
+    background: linear-gradient(135deg, #fff1f2, #ffe4e6);
+    color: #be123c; font-size: .84rem; font-weight: 600;
+}
+.correction-bar p { display: flex; align-items: center; gap: 9px; }
+.correction-button {
+    display: inline-flex; min-height: 40px; align-items: center; gap: 8px;
+    padding: 0 16px; border: 0; border-radius: 9px;
+    background: linear-gradient(135deg, #10b981, #059669); color: #fff;
+    font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer;
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+}
 
         /* EMPTY DOCS */
         .empty-docs {
@@ -423,10 +450,19 @@
                                 </div>
                                 <span class="badge-count">{{ $candidature->documents->count() }} fichier(s)</span>
                             </div>
+                            @if($nbRejetes > 0 && $candidature->statut !== 'rejete')
+    <div class="correction-bar">
+        <p><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{ $nbRejetes }} document(s) rejeté(s) : le candidat doit les renvoyer.</p>
+        <form method="POST" target="_blank" action="{{ route('admin.candidatures.demandeCorrection', $candidature) }}">
+            @csrf
+            <button type="submit" class="correction-button"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Demander sur WhatsApp</button>
+        </form>
+    </div>
+@endif
                             <div class="document-grid">
                                 @forelse($candidature->documents as $doc)
                                     @php
-                                        $urlFichier = asset('storage/'.$doc->chemin_fichier);
+                                        $urlFichier = route('admin.documents.show', $doc);
                                         $extension = strtolower(pathinfo($doc->chemin_fichier, PATHINFO_EXTENSION));
                                         $isImage = in_array($extension, ['jpg', 'jpeg', 'png'], true);
                                     @endphp
@@ -448,6 +484,27 @@
                                             <a class="document-link" href="{{ $urlFichier }}" target="_blank" rel="noopener noreferrer">
                                                 Agrandir <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
                                             </a>
+                                        </div>
+                                        <div class="document-review">
+                                            @if($doc->est_valide === true)
+                                                <span class="doc-badge doc-badge-ok">Valide</span>
+                                            @elseif($doc->est_valide === false)
+                                                <span class="doc-badge doc-badge-ko">Rejeté{{ $doc->note_rejet ? ' : '.$doc->note_rejet : '' }}</span>
+                                            @elseif($doc->renvoye_le)
+    <span class="doc-badge doc-badge-new">Renvoyé le {{ $doc->renvoye_le->format('d/m/Y à H:i') }} · à vérifier</span>
+                                                @else
+                                                <span class="doc-badge">À vérifier</span>
+                                            @endif
+                                            @if($candidature->statut !== 'entretien_programme')
+                                            <form method="POST" action="{{ route('admin.documents.validation', $doc) }}">
+                                                @csrf
+                                                <input type="text" name="note_rejet" maxlength="255" placeholder="Motif (obligatoire si rejeté)">
+                                                <div class="review-actions">
+                                                    <button type="submit" name="verdict" value="valide" class="btn-ok">Valider</button>
+                                                    <button type="submit" name="verdict" value="rejete" class="btn-ko">Rejeter</button>
+                                                </div>
+                                            </form>
+                                            @endif
                                         </div>
                                     </article>
                                 @empty
@@ -501,7 +558,7 @@
                                     </div>
                                 </div>
                             </section>
-@elseif($dernierEntretien)
+@elseif($dernierEntretien && $dernierEntretien->statut_entretien !== 'absent')
     <!-- RÉCAPITULATIF DE L'ENTRETIEN AVEC OPTIONS DE MODIFICATION ET D'ANNULATION -->
     <section class="panel" aria-labelledby="interview-summary-title">
         <div class="panel-heading">
@@ -609,6 +666,12 @@
                                     </div>
                                 </div>
                                 <div class="panel-body">
+                                    @if($dernierEntretien && $dernierEntretien->statut_entretien === 'absent')
+                                        <div class="flash flash-error" role="status">
+                                            <i class="fa-solid fa-user-slash" aria-hidden="true"></i>
+                                            Le candidat était absent à l’entretien du {{ date('d/m/Y à H:i', strtotime($dernierEntretien->date_prevue)) }}. Programmez un nouvel entretien ci-dessous, ou refusez le dossier depuis la liste des candidatures.
+                                        </div>
+                                    @endif
                                     <form action="{{ route('admin.candidatures.entretien', $candidature->id) }}" method="POST" target="_blank" data-return-url="{{ route('admin.candidatures.index') }}">
                                         @csrf
                                         <div class="form-field">
@@ -629,15 +692,6 @@
                                         </button>
                                     </form>
 
-                                    @if($dernierEntretien)
-                                        @php
-                                            $messageEntretien = "Bonjour {$candidature->chauffeur->prenom}, votre dossier VTC a retenu notre attention. Nous vous invitons à un entretien le ".date('d/m/Y à H:i', strtotime($dernierEntretien->date_prevue))." via {$dernierEntretien->lieu_ou_type}. Merci de confirmer votre présence.";
-                                        @endphp
-                                        <div class="divider"></div>
-                                        <a class="button button-whatsapp" href="https://wa.me/{{ $telephone }}?text={{ urlencode($messageEntretien) }}" target="_blank" rel="noopener noreferrer">
-                                            <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Ouvrir WhatsApp avec l'invitation
-                                        </a>
-                                    @endif
                                 </div>
                             </section>
                         @endif

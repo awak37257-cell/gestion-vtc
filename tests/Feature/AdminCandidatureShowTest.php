@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Candidature;
 use App\Models\Chauffeur;
+use App\Models\User;
+use App\Models\DocumentCandidature;
 use App\Models\Entretien;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
@@ -33,6 +35,12 @@ class AdminCandidatureShowTest extends TestCase
             'statut' => 'en_cours_examen',
         ]);
     }
+    protected function setUp(): void
+{
+    parent::setUp();
+
+    $this->actingAs(User::factory()->admin()->create());
+}
 
     public function test_the_latest_interview_details_prefill_the_interview_form(): void
     {
@@ -129,6 +137,12 @@ class AdminCandidatureShowTest extends TestCase
     {
         $this->travelTo('2026-11-15 10:31:00');
         $candidature = $this->createCandidature();
+        DocumentCandidature::create([
+    'candidature_id' => $candidature->id,
+    'type_document' => 'permis_recto',
+    'chemin_fichier' => 'documents_candidats/permis.jpg',
+    'est_valide' => true,
+]);
         $candidature->update(['statut' => 'entretien_programme']);
         $entretien = $this->createEntretien($candidature, '2026-11-15 10:30:00');
 

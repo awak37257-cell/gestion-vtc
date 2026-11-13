@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Candidature;
 use App\Models\Chauffeur;
+use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
@@ -58,4 +59,10 @@ class AdminDashboardTest extends TestCase
         $response->assertSee('Moussa Traore');
         $response->assertSee(route('admin.candidatures.index'));
     }
+    protected function setUp(): void
+{
+    parent::setUp();
+
+    $this->actingAs(User::factory()->admin()->create());
+}
 }

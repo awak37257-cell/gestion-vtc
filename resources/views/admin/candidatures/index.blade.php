@@ -168,7 +168,22 @@
         }
         .filter-intro h2 { margin: 0 0 3px; font-size: .92rem; font-weight: 800; }
         .filter-intro p { margin: 0; color: var(--muted); font-size: .77rem; }
-        .filter-form { display: flex; align-items: center; gap: 9px; }
+        .filter-form { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 9px; }
+        .filter-input {
+            min-width: 220px; min-height: 44px;
+            padding: 0 14px;
+            border: 1.5px solid var(--line);
+            border-radius: 8px;
+            background: var(--white);
+            color: var(--ink-soft);
+            font: inherit;
+            font-size: .82rem;
+            font-weight: 500;
+            transition: border-color .2s ease, box-shadow .2s ease;
+        }
+        .filter-input:hover { border-color: #cbd5e1; }
+        .filter-input:focus { outline: 0; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.15); }
+        .filter-input-date { min-width: 150px; }
         .filter-select {
             min-width: 220px; min-height: 44px;
             padding: 0 36px 0 14px;
@@ -211,6 +226,18 @@
             transition: color .2s ease;
         }
         .clear-filter:hover { color: var(--rose); }
+        .export-link {
+            display: inline-flex; min-height: 44px; align-items: center; gap: 8px;
+            padding: 0 16px;
+            border: 1.5px solid var(--line);
+            border-radius: 8px;
+            background: var(--white);
+            color: var(--ink-soft);
+            font-size: .82rem;
+            font-weight: 700;
+            transition: all .2s ease;
+        }
+        .export-link:hover { border-color: var(--gold); background: var(--gold-light); color: var(--gold-dark); }
 
         /* TABLE CARD */
         .table-card {
@@ -324,6 +351,16 @@
         .decision-accept:hover { background: linear-gradient(135deg, #d1fae5, #a7f3d0); transform: translateY(-1px); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
         .decision-reject { border-color: #fecdd3; background: linear-gradient(135deg, #fff1f2, #ffe4e6); color: #be123c; }
         .decision-reject:hover { background: linear-gradient(135deg, #ffe4e6, #fecdd3); transform: translateY(-1px); box-shadow: 0 4px 10px rgba(244, 63, 94, 0.2); }
+        .decision-absent { border-color: #cbd5e1; background: #f8fafc; color: #475569; }
+        .decision-absent:hover { background: #f1f5f9; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(71, 85, 105, 0.15); }
+        .absent-note { display: block; margin-top: 5px; color: #be123c; font-size: .72rem; font-weight: 600; }
+        .error-alert {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 20px; padding: 14px 16px;
+            border: 1px solid #fecdd3; border-radius: 10px;
+            background: linear-gradient(135deg, #fff1f2, #ffe4e6);
+            color: #be123c; font-size: .85rem; font-weight: 600;
+        }
         .action-pending { display: inline-block; max-width: 150px; color: var(--muted); font-size: .72rem; line-height: 1.4; }
 
         /* EMPTY STATE */
@@ -403,15 +440,21 @@
             <div class="success-alert" role="status"><i class="fa-solid fa-circle-check" aria-hidden="true"></i>{{ session('success') }}</div>
         @endif
 
+        @if($errors->any())
+            <div class="error-alert" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>{{ $errors->first() }}</div>
+        @endif
+
         <section class="filter-card" aria-labelledby="filter-title">
             <div class="filter-intro">
                 <span class="filter-icon"><i class="fa-solid fa-sliders" aria-hidden="true"></i></span>
                 <div>
                     <h2 id="filter-title">Filtrer les dossiers</h2>
-                    <p>Affinez la liste par statut de candidature.</p>
+                    <p>Recherchez par nom, téléphone, ville ou permis, puis affinez par statut ou par date.</p>
                 </div>
             </div>
             <form method="GET" action="{{ route('admin.candidatures.index') }}" class="filter-form">
+                <label for="q" class="sr-only">Rechercher un candidat</label>
+                <input id="q" type="search" name="q" value="{{ request('q') }}" maxlength="100" class="filter-input" placeholder="Nom, téléphone, ville, permis…">
                 <label for="statut" class="sr-only">Statut de la candidature</label>
                 <select id="statut" name="statut" class="filter-select">
                     <option value="">Tous les statuts</option>
@@ -421,8 +464,13 @@
                     <option value="accepte" {{ request('statut') === 'accepte' ? 'selected' : '' }}>Accepté</option>
                     <option value="rejete" {{ request('statut') === 'rejete' ? 'selected' : '' }}>Rejeté</option>
                 </select>
+                <label for="du" class="sr-only">Reçu à partir du</label>
+                <input id="du" type="date" name="du" value="{{ request('du') }}" class="filter-input filter-input-date" title="Reçu à partir du">
+                <label for="au" class="sr-only">Reçu jusqu'au</label>
+                <input id="au" type="date" name="au" value="{{ request('au') }}" class="filter-input filter-input-date" title="Reçu jusqu'au">
                 <button class="filter-button" type="submit"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Filtrer</button>
-                @if(request()->filled('statut'))
+                <a class="export-link" href="{{ route('admin.candidatures.export', request()->except('page')) }}" title="Télécharge la liste actuellement filtrée, ouvrable dans Excel"><i class="fa-solid fa-file-csv" aria-hidden="true"></i> Exporter</a>
+                @if(request()->anyFilled(['q', 'statut', 'du', 'au']))
                     <a class="clear-filter" href="{{ route('admin.candidatures.index') }}">Réinitialiser</a>
                 @endif
             </form>
@@ -448,7 +496,10 @@
                     <tbody>
                         @forelse($candidatures as $candidature)
                             @php
-                                $dernierEntretien = $candidature->entretiens->sortByDesc('cree_le')->first();
+                                $dernierEntretien = $candidature->entretiens->sortByDesc('id')->first();
+                                $estAbsent = $candidature->statut === 'en_cours_examen'
+                                    && $dernierEntretien
+                                    && $dernierEntretien->statut_entretien === 'absent';
                                 $decisionDisponible = $candidature->statut === 'entretien_programme'
                                     && $dernierEntretien
                                     && strtotime($dernierEntretien->date_prevue) <= $currentTime->timestamp;
@@ -487,23 +538,48 @@
                                     <span class="status {{ $statusClasses[$candidature->statut] ?? 'status-review' }}">
                                         {{ $statusLabels[$candidature->statut] ?? ucfirst(str_replace('_', ' ', $candidature->statut)) }}
                                     </span>
+                                    @if($estAbsent)
+                                        <span class="absent-note">Absent à l’entretien du {{ date('d/m/Y', strtotime($dernierEntretien->date_prevue)) }}</span>
+                                    @endif
                                 </td>
                                 <td>
-                                    @if(in_array($candidature->statut, ['en_attente', 'en_cours_examen'], true))
+                                    @if($estAbsent)
+                                        <div class="decision-actions">
+                                            <a class="action-link" href="{{ route('admin.candidatures.show', $candidature) }}">Reprogrammer</a>
+                                            <form action="{{ route('admin.candidatures.refusAbsence', $candidature) }}" method="POST">
+                                                @csrf
+                                                <input type="text" name="motif_rejet" maxlength="255" placeholder="Motif (facultatif)" style="width: 150px; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: .78rem;">
+                                                <button class="decision-button decision-reject" type="submit">Refuser</button>
+                                            </form>
+                                        </div>
+                                    @elseif(in_array($candidature->statut, ['en_attente', 'en_cours_examen'], true))
                                         <a class="action-link" href="{{ route('admin.candidatures.show', $candidature->id) }}">
                                             Examiner <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
                                         </a>
                                     @elseif($decisionDisponible)
                                         <div class="decision-actions">
-                                            <form action="{{ route('admin.candidatures.decisionEntretien', $candidature) }}" method="POST">
-                                                @csrf
-                                                <input type="hidden" name="decision" value="valide">
-                                                <button class="decision-button decision-accept" type="submit">Accepter</button>
-                                            </form>
+                                            @php
+                                                $documentsValides = $candidature->documents->isNotEmpty()
+                                                    && $candidature->documents->every(fn ($document) => $document->est_valide === true);
+                                            @endphp
+                                            @if($documentsValides)
+                                                <form action="{{ route('admin.candidatures.decisionEntretien', $candidature) }}" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="decision" value="valide">
+                                                    <button class="decision-button decision-accept" type="submit">Accepter</button>
+                                                </form>
+                                            @else
+                                                <a class="action-link" href="{{ route('admin.candidatures.show', $candidature) }}">Valider les documents</a>
+                                            @endif
                                             <form action="{{ route('admin.candidatures.decisionEntretien', $candidature) }}" method="POST">
                                                 @csrf
                                                 <input type="hidden" name="decision" value="non_valide">
+                                                <input type="text" name="motif_rejet" maxlength="255" placeholder="Motif (facultatif)" style="width: 150px; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: .78rem;">
                                                 <button class="decision-button decision-reject" type="submit">Refuser</button>
+                                            </form>
+                                            <form action="{{ route('admin.candidatures.absent', $candidature) }}" method="POST" onsubmit="return confirm('Marquer ce candidat comme absent à l\'entretien ?');">
+                                                @csrf
+                                                <button class="decision-button decision-absent" type="submit">Absent</button>
                                             </form>
                                         </div>
                                     @elseif($candidature->statut === 'entretien_programme')

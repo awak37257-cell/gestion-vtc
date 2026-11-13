@@ -8,6 +8,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Candidature extends Model
 {
+    protected function casts(): array
+{
+    return [
+        'jeton_correction_expire_le' => 'datetime', // Remplacez par le nom exact de votre colonne
+    ];
+}
     protected $table = 'candidatures';
     protected $guarded = ['id'];
 

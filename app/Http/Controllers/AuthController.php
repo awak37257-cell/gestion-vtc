@@ -24,6 +24,15 @@ class AuthController extends Controller
 
         // Vérifie les identifiants dans la base de données
         if (Auth::attempt($credentials)) {
+            if (! Auth::user()->is_admin) {
+    Auth::logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    return back()->withErrors([
+        'email' => 'Ce compte n\'a pas accès à l\'administration.',
+    ])->onlyInput('email');
+}
             $request->session()->regenerate();
 
             // Redirige vers le tableau de bord administrateur après une connexion réussie

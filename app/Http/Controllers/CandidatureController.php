@@ -83,8 +83,8 @@ class CandidatureController extends Controller
             foreach ($typesDocuments as $type) {
                 if ($request->hasFile($type)) {
                     // Stockage dans le dossier 'storage/app/public/documents_candidats'
-                    $chemin = $request->file($type)->store('documents_candidats', 'public');
-
+// Avant : ->store('documents_candidats', 'public')
+$chemin = $request->file($type)->store('documents_candidats', 'local');
                     DocumentCandidature::create([
                         'candidature_id' => $candidature->id,
                         'type_document' => $type,
@@ -98,11 +98,12 @@ class CandidatureController extends Controller
             return redirect()->route('candidature.create')
                 ->with('success', 'Votre candidature a été soumise avec succès ! Nous l\'examinerons sous peu.');
 
-        } catch (\Exception $e) {
-            DB::rollBack();
+       } catch (\Exception $e) {
+    DB::rollBack();
+    report($e);
 
-            return back()->withInput()->with('error', 'Une erreur est survenue lors de l\'envoi de votre dossier : '.$e->getMessage());
-        }
+    return back()->withInput()->with('error', 'Une erreur est survenue lors de l\'envoi de votre dossier. Veuillez réessayer.');
+}
     }
     
 }
