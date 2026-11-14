@@ -346,12 +346,7 @@
                 <img class="brand-logo" src="{{ asset('images/logo.png') }}" alt="">
                 <span>TIHE'S <span>Group</span></span>
             </a>
-            <div class="nav-links">
-                <a href="#avantages">Pourquoi TIHE'S Group</a>
-                <a href="#parcours">Les étapes</a>
-                <a href="#questions">Questions</a>
-                <a class="nav-login" href="{{ route('login') }}"><i class="fa-solid fa-lock" aria-hidden="true"></i> Espace recruteur</a>
-            </div>
+            
         </nav>
     </header>
 
@@ -365,127 +360,14 @@
                     <p class="hero-copy">Rejoignez une équipe qui valorise votre métier. Candidatez en ligne, depuis votre téléphone, et échangez directement avec notre équipe de recrutement.</p>
                     <div class="hero-actions">
                         <a class="button" href="{{ route('candidature.create') }}">Déposer ma candidature <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-                        <a class="text-link" href="#parcours">Découvrir le parcours <i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a>
+                        <a class="text-link" href="#parcours">Découvrir les critères  <i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a>
                     </div>
                     <p class="hero-note"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> <span>Un dossier transmis en toute simplicité, <strong>100 % en ligne.</strong></span></p>
                 </div>
             </div>
         </section>
 
-        <section class="trust-strip" aria-label="Les atouts de la candidature">
-            <div class="container trust-inner">
-                <div class="trust-item"><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i> Candidature depuis votre mobile</div>
-                <div class="trust-item"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Un échange direct avec l'équipe</div>
-                <div class="trust-item"><i class="fa-solid fa-file-circle-check" aria-hidden="true"></i> Vos documents au même endroit</div>
-            </div>
-        </section>
 
-        <section class="section" id="avantages">
-            <div class="container">
-                <div class="section-heading">
-                    <p class="eyebrow">L'expérience TIHE'S Group</p>
-                    <h2>Un accompagnement pensé pour les chauffeurs.</h2>
-                    <p>Votre temps compte. Nous avons simplifié les démarches pour que vous puissiez vous concentrer sur l'essentiel : votre activité.</p>
-                </div>
-                <div class="benefit-grid">
-                    <article class="benefit-card">
-                        <div class="icon-box"><i class="fa-solid fa-route" aria-hidden="true"></i></div>
-                        <h3>Un parcours sans détour</h3>
-                        <p>Remplissez votre dossier en ligne et transmettez vos pièces justificatives en quelques étapes claires.</p>
-                    </article>
-                    <article class="benefit-card">
-                        <div class="icon-box"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></div>
-                        <h3>Un contact humain</h3>
-                        <p>Notre équipe reste disponible pour vous guider et échanger avec vous au fil du recrutement.</p>
-                    </article>
-                    <article class="benefit-card">
-                        <div class="icon-box"><i class="fa-solid fa-handshake-angle" aria-hidden="true"></i></div>
-                        <h3>Un suivi de votre dossier</h3>
-                        <p>Votre candidature est transmise à notre équipe pour examen. Vous êtes informé des prochaines étapes.</p>
-                    </article>
-                </div>
-            </div>
-        </section>
-
-        <section class="section process" id="parcours">
-            <div class="container process-layout">
-                <div class="section-heading">
-                    <p class="eyebrow">Comment ça marche</p>
-                    <h2>Trois étapes pour rejoindre l'aventure.</h2>
-                    <p>Préparez vos documents, complétez le formulaire et notre équipe prendra le relais.</p>
-                </div>
-                <div class="steps">
-                    <article class="step">
-                        <span class="step-number">01</span>
-                        <div><h3>Préparez vos documents</h3><p>Munissez-vous de votre permis de conduire et d'une pièce d'identité en cours de validité.</p></div>
-                    </article>
-                    <article class="step">
-                        <span class="step-number">02</span>
-                        <div><h3>Complétez votre dossier</h3><p>Renseignez vos informations et téléversez vos justificatifs depuis votre téléphone ou votre ordinateur.</p></div>
-                    </article>
-                    <article class="step">
-                        <span class="step-number">03</span>
-                        <div><h3>Échangez avec notre équipe</h3><p>Après étude de votre candidature, notre équipe vous contactera pour vous informer de la suite.</p></div>
-                    </article>
-                </div>
-            </div>
-        </section>
-
-        <section class="section" id="conditions">
-            <div class="container requirements-layout">
-                <div>
-                    <p class="eyebrow">Avant de commencer</p>
-                    <h2 class="requirements-title">Votre dossier, prêt à partir.</h2>
-                    <p class="requirements-copy">Pour faciliter l'étude de votre candidature, gardez ces éléments à portée de main :</p>
-                    <ul class="requirements-list">
-                        <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>Un permis de conduire valide et les informations associées.</span></li>
-                        <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>Le numéro de votre pièce d'identité (CNI ou passeport).</span></li>
-                        <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>Une pièce d'identité officielle : CNI ou passeport.</span></li>
-                        <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>Un numéro WhatsApp actif pour rester joignable.</span></li>
-                    </ul>
-                </div>
-                <aside class="prep-card">
-                    <div class="icon-box"><i class="fa-solid fa-clipboard-check" aria-hidden="true"></i></div>
-                    <h3>Prêt à prendre la route ?</h3>
-                    <p>Le formulaire vous guidera étape par étape pour déposer votre candidature et vos justificatifs.</p>
-                    <a class="button" href="{{ route('candidature.create') }}">Commencer ma candidature <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-                </aside>
-            </div>
-        </section>
-
-        <section class="section faq" id="questions">
-            <div class="container faq-layout">
-                <div class="section-heading">
-                    <p class="eyebrow">Questions fréquentes</p>
-                    <h2>Vous avez des questions ?</h2>
-                    <p>Voici quelques repères pour préparer votre candidature sereinement.</p>
-                </div>
-                <div class="faq-list">
-                    <details class="faq-item">
-                        <summary>Comment déposer ma candidature ? <i class="fa-solid fa-plus" aria-hidden="true"></i></summary>
-                        <p>Cliquez sur « Déposer ma candidature », renseignez le formulaire et ajoutez les documents demandés. Vous pouvez effectuer ces étapes depuis un téléphone ou un ordinateur.</p>
-                    </details>
-                    <details class="faq-item">
-                        <summary>Quels documents dois-je fournir ? <i class="fa-solid fa-plus" aria-hidden="true"></i></summary>
-                        <p>Le formulaire demande les deux faces de votre permis, le numéro de votre pièce d'identité et une copie de celle-ci. Prévoyez des fichiers lisibles au format image ou PDF.</p>
-                    </details>
-                    <details class="faq-item">
-                        <summary>Comment serai-je informé de la suite ? <i class="fa-solid fa-plus" aria-hidden="true"></i></summary>
-                        <p>L'équipe de recrutement étudie votre dossier et vous contactera via les coordonnées indiquées dans le formulaire, notamment WhatsApp.</p>
-                    </details>
-                </div>
-            </div>
-        </section>
-
-        <section class="closing">
-            <div class="container">
-                <div class="closing-panel">
-                    <div><h2>La prochaine étape de votre carrière commence au volant.</h2><p>Déposez votre dossier dès maintenant et échangeons sur votre projet.</p></div>
-                    <a class="button" href="{{ route('candidature.create') }}">Je candidate <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-                </div>
-            </div>
-        </section>
-    </main>
 
     <footer class="site-footer">
         <div class="container footer-inner">

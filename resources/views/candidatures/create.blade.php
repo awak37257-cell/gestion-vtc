@@ -272,9 +272,9 @@
 <body>
     <header class="topbar">
         <div class="topbar-inner">
-            <a class="brand" href="{{ route('welcome') }}" aria-label="VTCDrive, accueil">
+            <a class="brand" href="{{ route('welcome') }}" aria-label="TIHEDrive, accueil">
                 <img class="brand-logo" src="{{ asset('images/logo.png') }}" alt="">
-                <span class="brand-name">VTC<span>Drive</span></span>
+                <span class="brand-name">TIHE'S<span>Group</span></span>
             </a>
             <a class="back-link" href="{{ route('welcome') }}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Retour à l'accueil</a>
         </div>
@@ -315,7 +315,7 @@
             </div>
         @endif
 
-        <div class="layout">
+<div class="layout">
             <form class="form-column" action="{{ route('candidature.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
@@ -368,18 +368,53 @@
                         <div class="field">
                             <label for="numero_permis">Numéro de permis <span aria-hidden="true">*</span></label>
                             <input class="field-control @error('numero_permis') is-invalid @enderror" id="numero_permis" name="numero_permis" type="text" value="{{ old('numero_permis') }}" required>
+                            <span class="field-hint">Permis de conduire catégorie B</span>
                             @error('numero_permis')<span class="field-error">{{ $message }}</span>@enderror
                         </div>
+                        
                         <div class="field">
                             <label for="annees_permis">Années de détention du permis <span aria-hidden="true">*</span></label>
-                            <input class="field-control @error('annees_permis') is-invalid @enderror" id="annees_permis" name="annees_permis" type="number" min="1" value="{{ old('annees_permis') }}" placeholder="Ex. 5" required>
+                            <input class="field-control @error('annees_permis') is-invalid @enderror" id="annees_permis" name="annees_permis" type="number" min="3" value="{{ old('annees_permis') }}" placeholder="Ex. 3" required>
+                            <span class="field-hint">Minimum 3 ans d'expérience requis</span>
                             @error('annees_permis')<span class="field-error">{{ $message }}</span>@enderror
                         </div>
                         <div class="field field-full">
                             <label for="numero_piece_identite">Numéro de pièce d'identité <span aria-hidden="true">*</span></label>
                             <input class="field-control @error('numero_piece_identite') is-invalid @enderror" id="numero_piece_identite" name="numero_piece_identite" type="text" value="{{ old('numero_piece_identite') }}" autocomplete="off" required>
-                            <span class="field-hint">Indiquez le numéro figurant sur votre CNI ou votre passeport.</span>
+                            <span class="field-hint">Indiquez le numéro figurant sur votre CNI ou votre passeport</span>
                             @error('numero_piece_identite')<span class="field-error">{{ $message }}</span>@enderror
+                        </div>
+                    </div>
+                </section>
+
+                <!-- NOUVELLE SECTION : Certifications et documents additionnels -->
+                <section class="form-card" aria-labelledby="certifications-title">
+                    <div class="section-heading">
+                        <span class="section-icon"><i class="fa-solid fa-certificate" aria-hidden="true"></i></span>
+                        <div>
+                            <h2 id="certifications-title">Certifications et antécédents</h2>
+                            <p>Informations relatives au CACR et au casier judiciaire.</p>
+                        </div>
+                    </div>
+                    <div class="field-grid">
+                        <div class="field">
+                            <label for="possede_cacr">Possédez-vous un CACR ? <span class="optional">(Facultatif)</span></label>
+                            <select class="field-control @error('possede_cacr') is-invalid @enderror" id="possede_cacr" name="possede_cacr">
+                                <option value="0" {{ old('possede_cacr') == '0' ? 'selected' : '' }}>Non</option>
+                                <option value="1" {{ old('possede_cacr') == '1' ? 'selected' : '' }}>Oui</option>
+                            </select>
+                            <span class="field-hint">Certificat d'Aptitude à la Conduite Routière</span>
+                            @error('possede_cacr')<span class="field-error">{{ $message }}</span>@enderror
+                        </div>
+                        <div class="field">
+                            <label for="statut_casier">Statut du casier judiciaire <span aria-hidden="true">*</span></label>
+                            <select class="field-control @error('statut_casier') is-invalid @enderror" id="statut_casier" name="statut_casier" required>
+                                <option value="">-- Sélectionnez --</option>
+                                <option value="disponible" {{ old('statut_casier') == 'disponible' ? 'selected' : '' }}>Disponible immédiatement</option>
+                                <option value="en_cours" {{ old('statut_casier') == 'en_cours' ? 'selected' : '' }}>En cours de demande</option>
+                            </select>
+                            <span class="field-hint">Bulletin n°3 récent</span>
+                            @error('statut_casier')<span class="field-error">{{ $message }}</span>@enderror
                         </div>
                     </div>
                 </section>
@@ -389,7 +424,7 @@
                         <span class="section-icon"><i class="fa-solid fa-folder-open" aria-hidden="true"></i></span>
                         <div>
                             <h2 id="documents-title">Vos pièces justificatives</h2>
-                            <p>Ajoutez les deux faces de votre permis et une copie de votre pièce d'identité. Fichiers JPG, PNG ou PDF, 2 Mo maximum chacun.</p>
+                            <p>Ajoutez les documents requis. Fichiers JPG, PNG ou PDF, 2 Mo maximum chacun.</p>
                         </div>
                     </div>
                     <div class="upload-grid">
@@ -408,6 +443,16 @@
                             <input class="field-control @error('piece_identite') is-invalid @enderror" id="piece_identite" name="piece_identite" type="file" accept=".jpeg,.png,.jpg,.pdf" required>
                             @error('piece_identite')<span class="field-error">{{ $message }}</span>@enderror
                         </div>
+                        <div class="upload-item">
+                            <label for="cacr_fichier"><i class="fa-solid fa-file-pdf" aria-hidden="true"></i> CACR <span class="optional">(Facultatif)</span></label>
+                            <input class="field-control @error('cacr_fichier') is-invalid @enderror" id="cacr_fichier" name="cacr_fichier" type="file" accept=".jpeg,.png,.jpg,.pdf">
+                            @error('cacr_fichier')<span class="field-error">{{ $message }}</span>@enderror
+                        </div>
+                        <div class="upload-item field-full">
+                            <label for="casier_fichier"><i class="fa-solid fa-file-shield" aria-hidden="true"></i> Extrait de casier judiciaire (Bulletin n°3) <span class="optional">(Si disponible)</span></label>
+                            <input class="field-control @error('casier_fichier') is-invalid @enderror" id="casier_fichier" name="casier_fichier" type="file" accept=".jpeg,.png,.jpg,.pdf">
+                            @error('casier_fichier')<span class="field-error">{{ $message }}</span>@enderror
+                        </div>
                     </div>
                 </section>
 
@@ -419,11 +464,12 @@
 
             <aside class="side-column" aria-label="Aide à la candidature">
                 <div class="side-card progress-card">
-                    <h2 class="progress-title">Votre dossier en 3 étapes</h2>
+                    <h2 class="progress-title">Votre dossier en étapes</h2>
                     <ol class="progress-list">
                         <li><span class="progress-number">1</span> Vos coordonnées</li>
                         <li><span class="progress-number">2</span> Votre expérience VTC</li>
-                        <li><span class="progress-number">3</span> Vos justificatifs</li>
+                        <li><span class="progress-number">3</span> Certifications & Casier</li>
+                        <li><span class="progress-number">4</span> Vos justificatifs</li>
                     </ol>
                 </div>
                 <div class="side-card help-card">

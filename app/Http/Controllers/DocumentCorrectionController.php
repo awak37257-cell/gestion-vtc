@@ -6,6 +6,7 @@ use App\Models\Candidature;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -55,22 +56,41 @@ class DocumentCorrectionController extends Controller
                 ->withErrors(['documents' => 'Ces documents ne sont pas à renvoyer.']);
         }
 
-        foreach ($fichiers as $id => $fichier) {
-            $document = $rejetes[$id];
-            $ancienChemin = $document->chemin_fichier;
+        DB::beginTransaction();
 
-            // Stockage privé, comme pour la candidature initiale
-            $nouveauChemin = $fichier->store('documents_candidats', 'local');
+        try {
+            $cheminsApresSucces = [];
 
-            $document->update([
-                'chemin_fichier' => $nouveauChemin,
-                'est_valide' => null,
-                'note_rejet' => null,
-                'renvoye_le' => now(),
-            ]);
+            foreach ($fichiers as $id => $fichier) {
+                $document = $rejetes[$id];
+                $ancienChemin = $document->chemin_fichier;
 
-            // L'ancien fichier rejeté n'est plus utile : on le supprime
-            Storage::disk('local')->delete($ancienChemin);
+                // Stockage privé, comme pour la candidature initiale
+                $nouveauChemin = $fichier->store('documents_candidats', 'local');
+                $cheminsApresSucces[] = $ancienChemin; // Gardé pour suppression si tout se passe bien
+
+                $document->update([
+                    'chemin_fichier' => $nouveauChemin,
+                    'est_valide' => null, // Remet en attente de validation admin
+                    'note_rejet' => null,
+                    'renvoye_le' => now(),
+                ]);
+            }
+
+            DB::commit();
+
+            // Nettoyage des anciens fichiers obsolètes après validation de la transaction
+            foreach ($cheminsApresSucces as $ancienChemin) {
+                if ($ancienChemin) {
+                    Storage::disk('local')->delete($ancienChemin);
+                }
+            }
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            report($e);
+
+            return back()->withInput()->with('error', 'Une erreur est survenue lors de la mise à jour de vos documents. Veuillez réessayer.');
         }
 
         $restants = $candidature->documents()->where('est_valide', false)->count();
