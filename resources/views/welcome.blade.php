@@ -296,6 +296,30 @@
         .footer-login { color: var(--muted); font-size: .82rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: color .2s ease; }
         .footer-login:hover { color: var(--gold-dark); }
 
+        /* CRITÈRES DE RECRUTEMENT (FAQ) */
+.criteres { scroll-margin-top: 20px; padding-top: 100px; }
+.criteres .section-heading { margin-bottom: 0; }
+.criteres .section-heading .button { margin-top: 30px; }
+.faq-question { display: flex; align-items: center; gap: 15px; }
+.faq-type {
+    display: grid; width: 42px; height: 42px; flex: 0 0 42px; place-items: center;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--gold-light), #fef3c7);
+    color: var(--gold-dark);
+}
+.faq-item summary .faq-type i { color: inherit; font-size: 1rem; transition: none; }
+.faq-item[open] summary .faq-type i { transform: none; }
+.faq-question-text small {
+    display: block; margin-top: 3px;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: .74rem;
+    font-weight: 600;
+}
+.criteria-list { display: grid; gap: 13px; margin: -2px 0 26px; padding: 0 0 0 57px; list-style: none; }
+.criteria-list li { display: flex; align-items: flex-start; gap: 12px; color: var(--ink-soft); font-size: .9rem; line-height: 1.65; }
+.criteria-list i { margin-top: 5px; color: var(--emerald); font-size: .78rem; }
+.faq-subtitle { margin: 44px 0 14px; color: var(--gold-dark); font-size: .75rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
         /* RESPONSIVE */
         @media (max-width: 800px) {
             .nav-wrap { min-height: 76px; }
@@ -309,6 +333,8 @@
             .process .section-heading { position: static; }
             .section { padding: 78px 0; }
             .faq { padding-top: 0; }
+            .criteres { padding-top: 78px; }
+.criteria-list { padding-left: 0; }
             .closing { padding-bottom: 78px; }
         }
         @media (max-width: 560px) {
@@ -344,7 +370,7 @@
         <nav class="container nav-wrap" aria-label="Navigation principale">
             <a class="brand" href="{{ route('welcome') }}" aria-label="TIHE'S Group, accueil">
                 <img class="brand-logo" src="{{ asset('images/logo.png') }}" alt="">
-                <span>TIHE'S <span>Group</span></span>
+                
             </a>
             
         </nav>
@@ -366,7 +392,102 @@
                 </div>
             </div>
         </section>
+<section class="section criteres" id="parcours" aria-labelledby="criteres-title">
+    @php
+        $typesDeCriteres = [
+            [
+                'icone' => 'fa-clipboard-check',
+                'question' => 'Quelles sont les conditions obligatoires ?',
+                'criteres' => [
+                    'Être titulaire d’un permis de conduire de catégorie B en cours de validité.',
+                    'Disposer d’un Certificat d’Aptitude à la Conduite Routière (CACR) si requis pour l’activité (facultatif).',
+                    'Justifier d’au moins 3 ans d’expérience pratique dans la conduite automobile.',
+                    'Posséder une pièce d’identité en cours de validité.',
+                    'Fournir un extrait de casier judiciaire (bulletin n° 3) récent, lorsque sa demande est légalement justifiée.',
+                    'Être disponible pour les horaires de travail, rotations et lieux de prise de service.',
+                ],
+            ],
+            [
+                'icone' => 'fa-screwdriver-wrench',
+                'question' => 'Quelles compétences professionnelles et techniques faut-il avoir ?',
+                'criteres' => [
+                    'Maîtriser parfaitement le code de la route ivoirien.',
+                    'Avoir une bonne connaissance des communes, grands axes, zones d’affaires et de l’aéroport.',
+                    'Maîtriser l’utilisation du GPS, de Google Maps et des applications de transport VTC.',
+                    'Savoir accueillir les clients avec professionnalisme (aide aux bagages, confort et sécurité).',
+                    'Être capable d’effectuer les vérifications élémentaires du véhicule : pneus, niveaux, propreté et anomalies.',
+                    'Respecter les procédures de l’entreprise concernant les réservations, les recettes, le carburant et les incidents.',
+                    'Savoir gérer les embouteillages, les imprévus et les réclamations des clients avec calme.',
+                ],
+            ],
+            [
+                'icone' => 'fa-handshake',
+                'question' => 'Quelles qualités humaines et comportementales attendez-vous ?',
+                'criteres' => [
+                    'Intégrité dans la gestion des recettes, des biens confiés et des objets oubliés.',
+                    'Respect des heures de service et des rendez-vous clients.',
+                    'Politesse, respect et sens de l’accueil.',
+                    'Confidentialité des informations et conversations des passagers.',
+                    'Respect des consignes, procédures et du règlement intérieur.',
+                    'Comportement calme, patient et respectueux en circulation.',
+                    'Hygiène personnelle et tenue professionnelle soignée.',
+                    'Protection du véhicule et signalement immédiat des accidents ou incidents.',
+                ],
+            ],
+        ];
 
+        $questionsRapides = [
+            ['question' => 'Quel permis faut-il avoir ?', 'reponse' => 'Un permis de conduire de catégorie B en cours de validité.'],
+            ['question' => 'Combien d’années d’expérience faut-il ?', 'reponse' => 'Au moins 3 ans d’expérience pratique dans la conduite automobile.'],
+            ['question' => 'Le CACR est-il obligatoire ?', 'reponse' => 'Non. Le Certificat d’Aptitude à la Conduite Routière (CACR) est facultatif : il n’est demandé que s’il est requis pour l’activité.'],
+            ['question' => 'Dois-je fournir un casier judiciaire ?', 'reponse' => 'Un extrait de casier judiciaire (bulletin n° 3) récent peut vous être demandé, lorsque sa demande est légalement justifiée.'],
+        ];
+    @endphp
+    <div class="container faq-layout">
+        <div class="section-heading">
+            <p class="eyebrow">Critères de recrutement</p>
+            <h2 id="criteres-title">Ce que nous attendons de nos chauffeurs.</h2>
+            <p>Nos critères sont répartis en trois catégories. Ouvrez chacune pour voir le détail et vérifier que vous êtes prêt à candidater.</p>
+            <a class="button" href="{{ route('candidature.create') }}">Déposer ma candidature <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+        </div>
+
+        <div>
+            <div class="faq-list">
+                @foreach($typesDeCriteres as $type)
+                    <details class="faq-item" @if($loop->first) open @endif>
+                        <summary>
+                            <span class="faq-question">
+                                <span class="faq-type"><i class="fa-solid {{ $type['icone'] }}" aria-hidden="true"></i></span>
+                                <span class="faq-question-text">
+                                    {{ $type['question'] }}
+                                    <small>{{ count($type['criteres']) }} critères</small>
+                                </span>
+                            </span>
+                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                        </summary>
+                        <ul class="criteria-list">
+                            @foreach($type['criteres'] as $critere)
+                                <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>{{ $critere }}</span></li>
+                            @endforeach
+                        </ul>
+                    </details>
+                @endforeach
+            </div>
+
+            <p class="faq-subtitle">Questions rapides</p>
+
+            <div class="faq-list">
+                @foreach($questionsRapides as $question)
+                    <details class="faq-item">
+                        <summary>{{ $question['question'] }} <i class="fa-solid fa-plus" aria-hidden="true"></i></summary>
+                        <p>{{ $question['reponse'] }}</p>
+                    </details>
+                @endforeach
+            </div>
+        </div>
+    </div>
+</section>
+</main>
 
 
     <footer class="site-footer">

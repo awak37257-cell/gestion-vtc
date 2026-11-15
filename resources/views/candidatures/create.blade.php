@@ -274,7 +274,7 @@
         <div class="topbar-inner">
             <a class="brand" href="{{ route('welcome') }}" aria-label="TIHEDrive, accueil">
                 <img class="brand-logo" src="{{ asset('images/logo.png') }}" alt="">
-                <span class="brand-name">TIHE'S<span>Group</span></span>
+                
             </a>
             <a class="back-link" href="{{ route('welcome') }}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Retour à l'accueil</a>
         </div>
